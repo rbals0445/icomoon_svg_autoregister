@@ -31,7 +31,7 @@ SHOW_LIGATURE_BUTTON = '//*[@id="toolbar"]/div[2]/div[2]/div/label[2]' #Ligature
 
 ## 기타
 BASE_PATH = os.path.dirname(__file__)
-FOLDER_NAME_FOR_ADDITION = "testfolder" # 새로 넣을 이미지를 가지고 있는 폴더 이름
+FOLDER_NAME_FOR_ADDITION = "newfiles" # 새로 넣을 이미지를 가지고 있는 폴더 이름
 
 ## 함수
 def setLigatureName(wait) :    
