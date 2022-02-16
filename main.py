@@ -1,15 +1,17 @@
-from this import d
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import ElementNotInteractableException
 import os
 import chromedriver_autoinstaller
 import zipfile
 import time
 import re
 
-
+# TODO
+# python3 main.py로 실행하는경우
+# multicolor일때 search가 너무 늦음.. +1하는 방식이라 그런것같음.
 chromedriver_autoinstaller.install()
 
 ## const 영역
@@ -36,32 +38,36 @@ FOLDER_NAME_FOR_ADDITION = "newfiles" # 새로 넣을 이미지를 가지고 있
 ## 함수
 def setLigatureName(wait) :    
     wait.until(
-            EC.visibility_of_element_located((By.XPATH, "//*[@id='glyphSet0']/div[1]/div[1]/div/div/span[2]"))) # LigatureBtn 나올때까지 대기
-    
+            EC.visibility_of_element_located((By.XPATH, "//*[@id='glyphSet0']/div[1]/div[1]/div/div/span[2]"))) # div버튼 나왔는지 확인
     x = 1
     while(True) :
         try:
             ligatureNameXpath = "//*[@id='glyphSet0']/div["+str(x)+"]/div[1]/div/div/span[2]"
             ligatureInputXpath = "//*[@id='glyphSet0']/div["+str(x)+"]/div[2]/div[2]/label/input" 
-            
             ligatureName = driver.find_element(By.XPATH, ligatureNameXpath).text
             ligatureName = re.sub('[^0-9a-zA-Z_]', '', ligatureName)
+            
             driver.find_element(By.XPATH, ligatureInputXpath).send_keys(ligatureName)            
+            x += 1
+        except ElementNotInteractableException :
             x += 1
         except Exception as e:
             break
 
-def iterateChildSvgComponents() : # 추가된 컴포넌트를 클릭해주는 함수
-    x = 1
+def iterateChildSvgComponents(wait) : # 추가된 컴포넌트를 클릭해주는 함수
+    wait.until(
+            EC.visibility_of_element_located((By.XPATH, "//*[@id='set0']/mi-box-selector/div/mi-box[1]"))) # div버튼 나왔는지 확인
+    x = 1    
     while(True) :
         try:
             name = "//*[@id='set0']/mi-box-selector/div/mi-box["+str(x)+"]" 
-            elem = driver.find_element(By.XPATH, name)
+            elem = driver.find_element(By.XPATH, name)            
             if not elem.is_selected() :
                 elem.click()
-            x += 1
+            x += 1            
         except Exception as e:
             break
+    
     
 def addMultipleFiles(folderName) :   
     dirList = os.listdir(folderName)    
@@ -130,11 +136,8 @@ def processRequests() : # 최종 실행 함수
         
         wait.until(
             EC.visibility_of_element_located((By.XPATH, '//*[@id="set0"]/mi-box-selector/div'))) # div버튼 나왔는지 확인
-        
-        wait.until(
-            EC.element_to_be_clickable((By.XPATH, GET_FONT_BUTTON))).click() # Load button click
-        
-        iterateChildSvgComponents() 
+            
+        iterateChildSvgComponents(wait) # 여기 작업 다 끝날때까지 안기다림..
         
         wait.until(
             EC.element_to_be_clickable((By.XPATH, GET_FONT_BUTTON))).click() # Click Font Button
@@ -147,7 +150,8 @@ def processRequests() : # 최종 실행 함수
             elem.click()
         
         setLigatureName(wait) # ligature 채움
-            
+        
+        
         wait.until(
             EC.element_to_be_clickable((By.XPATH, FONTS_DOWNLOAD_BUTTON))).click() # download button click
         
@@ -156,7 +160,7 @@ def processRequests() : # 최종 실행 함수
     finally:
         print("Update Finished")
         driver.close()
-        pass
+        
 ## 실행 스크립트
 driver = getBrowserDriver()
 driver.get(WEB_URL)
