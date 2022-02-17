@@ -1,3 +1,4 @@
+from distutils.log import error
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -12,7 +13,6 @@ import re
 import constants as const
 # TODO
 # python3 main.py로 실행하는경우
-# multicolor일때 search가 너무 늦음.. +1하는 방식이라 그런것같음.
 
 # Issue
 # headless mode로하면 스크롤이 안움직인다. 800 x 600 size여서, 내가 클릭하려는 아이콘 근처에 버튼이 있으면 그게 대신 눌려버리는 문제들이 발생했다.
@@ -40,9 +40,20 @@ def setLigatureName() :
 def addMultipleFiles(folderName) : # headless 정상작동
     dirList = os.listdir(folderName)    
     addedString = ""
-
+    
+    errorFiles = []
     for item in dirList :
+        prefix = item.split('_')[0].upper()
+        
+        if prefix != "IC" :
+            if prefix != "IMG" :
+                errorFiles.append(item)    
+            continue # 접두어가 ic가 아니면 제외
+        
         addedString += os.path.join(folderName,item+"\n")
+    
+    if len(errorFiles) != 0 :
+        print("File name error lists :",errorFiles)
         
     return addedString[0:-1]
 
@@ -106,19 +117,23 @@ def processRequests() : # 최종 실행 함수
         isElementPresent(const.IMPORT_ICON_DIV) # Import Icon 버튼 체크
         
         addedString = addMultipleFiles(os.path.join(const.BASE_PATH, const.FOLDER_NAME_FOR_ADDITION))
-        
         driver.find_element(By.XPATH,const.IMPORT_ICON_BUTTON).send_keys(addedString) # folder안에 있는 파일들 업로드 완료
+        
+        print("icon import has been completed.")
                            
         isElementPresent(const.DRAWER_BUTTON).click() # Drawbtn 찾아서 클릭
         isElementPresent(const.SELECT_ALL_BUTTON).click() # 전체 선택버튼
         isElementPresent(const.GET_FONT_BUTTON).click() # Click Font Button
         isElementClickable(const.SHOW_LIGATURE_BUTTON) # LigatureBtn 나올때까지 대기
+        
+        print("creating ligature...")
         setLigatureName() # ligature 채움
+        print("creating ligatures have been completed.")
         isElementClickable(const.FONTS_DOWNLOAD_BUTTON)
             
         unzip()   
     finally:
-        print("Update Finished")
+        print("Update Finished, Check your results folder")
         driver.close()
         
 ## 실행 스크립트
