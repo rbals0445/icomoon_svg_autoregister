@@ -5,12 +5,22 @@
 
 ## Installation
 
+### Versions
+
+```
+Python : 3.8.9 64-bit
+OS : MacOS Big-Sur v11.6
+```
+
 ### Download and Execute the source code
 
 ```bash
 # download
 $ git clone https://github.com/rbals0445/icomoon_svg_autoregister.git
 $ cd icomoon_svg_autoregister
+
+$ pip3 install selenium
+$ pip3 install chromedriver-autoinstaller
 
 # before excution, plz check conditions!
 
