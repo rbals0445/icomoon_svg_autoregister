@@ -32,7 +32,6 @@ $ python main.py
 
 ## Condition
 
-- Please include `selection.json` to save the existing image and add newly added images.
 - The newly added svg file must be placed in the `newfiles`
 - ligature name will be the same as the svg file name. However, characters other than '\_' are removed. (multiple color svg files will not be supported)
   - ```js

@@ -7,7 +7,6 @@ IMPORT_PROJECT_BUTTON = '/html/body/div[4]/div/div[3]/div[2]/div/mi-file/input'
 IMPORT_ICON_DIV = '//*[@id="file"]'
 IMPORT_ICON_BUTTON = '//*[@id="file"]/mi-file/input'
 
-IMPORT_FILE_NAME = 'selection.json' # selection.json가 보통 기본 파일명임
 NEW_PROJECT_BUTTON = '/html/body/div[4]/div/div[3]/div[2]/button'
 
 GET_FONT_BUTTON = '/html/body/div[4]/div[1]/div[2]/div[2]/div/a[2]' # 파일 추가후에 누르는 Fonts 버튼
