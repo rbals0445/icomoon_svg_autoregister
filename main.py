@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import ElementNotInteractableException
+from selenium.webdriver.common.keys import Keys
 import os
 import chromedriver_autoinstaller
 import zipfile
@@ -12,6 +13,10 @@ import re
 # TODO
 # python3 main.py로 실행하는경우
 # multicolor일때 search가 너무 늦음.. +1하는 방식이라 그런것같음.
+
+# Issue
+# headless mode로하면 스크롤이 안움직인다. 800 x 600 size여서, 내가 클릭하려는 아이콘 근처에 버튼이 있으면 그게 대신 눌려버리는 문제들이 발생했다.
+# window_size를 변경해서 해결했지만, 스크롤을 움직일 수 있는게 좀 더 근본적 해결일것 같음
 chromedriver_autoinstaller.install()
 
 ## const 영역
@@ -55,37 +60,38 @@ def setLigatureName(wait) :
             break
 
 def iterateChildSvgComponents(wait) : # 추가된 컴포넌트를 클릭해주는 함수
+    
     wait.until(
             EC.visibility_of_element_located((By.XPATH, "//*[@id='set0']/mi-box-selector/div/mi-box[1]"))) # div버튼 나왔는지 확인
-    x = 1    
-    while(True) :
-        try:
-            name = "//*[@id='set0']/mi-box-selector/div/mi-box["+str(x)+"]" 
-            elem = driver.find_element(By.XPATH, name)            
-            if not elem.is_selected() :
-                elem.click()
-            x += 1            
-        except Exception as e:
-            break
+
+    for item in driver.find_elements_by_tag_name('mi-box') :
+        if not item.is_selected() :
+            item.click()
     
-    
-def addMultipleFiles(folderName) :   
+def addMultipleFiles(folderName) : # headless 정상작동
     dirList = os.listdir(folderName)    
     addedString = ""
 
     for item in dirList :
         addedString += os.path.join(folderName,item+"\n")
-
+        
     return addedString[0:-1]
 
 def getBrowserDriver() :    
     op = webdriver.ChromeOptions()
+    #op.add_argument('--disable-dev-shm-usage')
+    #op.add_argument('--no-proxy-server') 
+    #op.add_argument("--proxy-server='direct://'");
+    #op.add_argument("--proxy-bypass-list=*");
+    #op.add_argument("--start-maximized")    
+    op.add_argument("window-size=2560,1440")
     op.add_argument('headless')
-    op.add_argument("disable-gpu")
+    op.add_argument("disable-gpu") 
     p = {"download.default_directory": BASE_PATH, "safebrowsing.enabled":False, 'download.prompt_for_download': False }
     op.add_experimental_option("prefs", p)
     
-    driver = webdriver.Chrome(options=op)
+    driver = webdriver.Chrome(options=op)    
+    print(driver.get_window_size())
     
     return driver;
 
@@ -137,7 +143,7 @@ def processRequests() : # 최종 실행 함수
         wait.until(
             EC.visibility_of_element_located((By.XPATH, '//*[@id="set0"]/mi-box-selector/div'))) # div버튼 나왔는지 확인
             
-        iterateChildSvgComponents(wait) # 여기 작업 다 끝날때까지 안기다림..
+        iterateChildSvgComponents(wait) 
         
         wait.until(
             EC.element_to_be_clickable((By.XPATH, GET_FONT_BUTTON))).click() # Click Font Button
