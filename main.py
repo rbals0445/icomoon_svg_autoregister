@@ -10,6 +10,7 @@ import chromedriver_autoinstaller
 import zipfile
 import time
 import re
+import sys
 import constants as const
 # TODO
 # python3 main.py로 실행하는경우
@@ -41,20 +42,9 @@ def addMultipleFiles(folderName) : # headless 정상작동
     dirList = os.listdir(folderName)    
     addedString = ""
     
-    errorFiles = []
-    for item in dirList :
-        prefix = item.split('_')[0].upper()
-        
-        if prefix != "IC" :
-            if prefix != "IMG" :
-                errorFiles.append(item)    
-            continue # 접두어가 ic가 아니면 제외
-        
+    for item in dirList :        
         addedString += os.path.join(folderName,item+"\n")
     
-    if len(errorFiles) != 0 :
-        print("File name error lists :",errorFiles)
-        
     return addedString[0:-1]
 
 def getBrowserDriver() :    
@@ -112,6 +102,7 @@ def isElementPresent(PATH) :
 
 def processRequests() : # 최종 실행 함수
     try:
+        print("Base Path=",const.BASE_PATH)
         isElementClickable(const.NEW_PROJECT_BUTTON) # 새 프로젝트 버튼 클릭
         isElementClickable(const.NEW_PROJECT_LOAD_BUTTON) # 프로젝트에서 Load 버튼 클릭
         isElementPresent(const.IMPORT_ICON_DIV) # Import Icon 버튼 체크
@@ -137,6 +128,7 @@ def processRequests() : # 최종 실행 함수
         driver.close()
         
 ## 실행 스크립트
+
 driver = getBrowserDriver()
 driver.get(const.WEB_URL)
 wait = WebDriverWait(driver, 30)
